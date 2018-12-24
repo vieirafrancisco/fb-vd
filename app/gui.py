@@ -1,5 +1,8 @@
 import tkinter as tk
 import settings
+from scrapping.request_url import Url
+import requests
+import urllib.request
 
 class Gui(tk.Frame):
     def __init__(self, master):
@@ -48,14 +51,14 @@ class Gui(tk.Frame):
         self.file_name_entry = tk.Entry(self.download_frame, width=settings.ENTRY_WIDTH)
         self.file_name_entry.grid(row=3, column=0, padx=10)
 
-        self.enter_name_btn = tk.Button(self.download_frame, text="Enter", width=settings.BUTTON_WIDTH, command=self.enter_name_click)
+        self.enter_name_btn = tk.Button(self.download_frame, text="Enter", width=settings.BUTTON_WIDTH, command=self.enter_name_click, state='disabled')
         self.enter_name_btn.grid(row=3, column=1)
 
         # log frame
         self.log_frame = tk.Frame(self)
         self.log_frame.grid(row=2, column=0,padx=settings.FRAME_PADDING_X, pady=settings.FRAME_PADDING_Y)
 
-        self.log_label = tk.Label(self.log_frame, text=settings.LOG_MESSAGES['completed'][0], font=("Lucida", 12), foreground=settings.LOG_MESSAGES['completed'][1])
+        self.log_label = tk.Label(self.log_frame, font=("Lucida", 12))
         self.log_label.grid(row=0, column=0)
 
         # control frame
@@ -69,11 +72,22 @@ class Gui(tk.Frame):
 
     def download_click(self):
         if(self.url_entry.get()):
-            pass
+            url = Url(self.url_entry.get()).get_url()
+            
+            if(requests.get(url)):
+                try:
+                    raw = requests.get(url, stream=True).raw
+                    buffer = raw.read(1024)
+                    with open(self.path_text.get()+self.file_name_entry.get()+'.mp4', "wb") as f:
+                        while(buffer):
+                            f.write(buffer)
+                            buffer = raw.read(1024)
+                    self.set_log_msg('completed')
+                except Exception:
+                    self.set_log_msg('error')
+
         else:
-            msg = settings.LOG_MESSAGES['error']
-            self.log_label['text'] = msg[0]
-            self.log_label['foreground'] = msg[1]
+            self.set_log_msg('error')
  
     def cancel_click(self):
         self.master.destroy()
@@ -86,3 +100,8 @@ class Gui(tk.Frame):
 
     def enter_name_click(self):
         pass
+
+    def set_log_msg(self, log):
+        msg = settings.LOG_MESSAGES[log]
+        self.log_label['text'] = msg[0]
+        self.log_label['foreground'] = msg[1]
