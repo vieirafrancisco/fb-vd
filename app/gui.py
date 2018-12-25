@@ -2,11 +2,15 @@ import requests
 import urllib.request
 import os
 import tkinter as tk
+import time
 
 import settings
 
+from .progress_bar import ProgressBar
 from scrapping.request_url import Url
 from tkinter.filedialog import askdirectory
+from tkinter import ttk
+from scrapping.url_exception import URLException
 
 class Gui(tk.Frame):
     def __init__(self, master):
@@ -58,8 +62,11 @@ class Gui(tk.Frame):
         self.log_frame = tk.Frame(self)
         self.log_frame.grid(row=2, column=0,padx=settings.FRAME_PADDING_X, pady=settings.FRAME_PADDING_Y)
 
-        self.log_label = tk.Label(self.log_frame, font=("Lucida", 12))
-        self.log_label.grid(row=0, column=0)
+        self.log_label = tk.Label(self.log_frame, font=("Lucida", 10))
+        self.log_label.grid(row=0, column=0, pady=5)
+
+        self.progress_bar = ttk.Progressbar(self.log_frame, orient="horizontal", length=400, mode='determinate')
+        self.progress_bar.grid(row=1, column=0)
 
         # control frame
         self.control_frame = tk.Frame(self)
@@ -71,23 +78,30 @@ class Gui(tk.Frame):
         self.open_folder_btn.grid(row=1, column=0, padx=5, pady=5)
 
     def download_click(self):
+        count = 0
         if(self.url_entry.get()):
-            url = Url(self.url_entry.get()).get_url()
-            
-            if(requests.get(url)):
-                try:
-                    raw = requests.get(url, stream=True).raw
-                    buffer = raw.read(1024)
-                    with open(self.path_text.get()+self.file_name_entry.get()+'.mp4', "wb") as f:
-                        while(buffer):
-                            f.write(buffer)
-                            buffer = raw.read(1024)
-                    self.set_log_msg('completed')
-                except Exception:
-                    self.set_log_msg('error')
+            try:
+                url = Url(self.url_entry.get()).get_url()
+                
+                if(requests.get(url)):
+                    try:
+                        raw = requests.get(url, stream=True).raw
+                        buffer = raw.read(1024)
+                        with open(self.path_text.get()+self.file_name_entry.get()+'.mp4', "wb") as f:
+                            while(buffer):
+                                count+=1
+                                f.write(buffer)
+                                buffer = raw.read(1024)
+
+                        print(count)
+                        self.set_log_msg(settings.LOG_MESSAGES['completed'][0], 'green')
+                    except Exception as e:
+                        self.set_log_msg(e, 'red')
+            except URLException as e:
+                self.set_log_msg(e, 'red')
 
         else:
-            self.set_log_msg('error')
+            self.set_log_msg(settings.LOG_MESSAGES['error'][0], 'red')
  
     def cancel_click(self):
         self.master.destroy()
@@ -102,10 +116,12 @@ class Gui(tk.Frame):
     def open_folder_click(self):
         os.startfile(self.path_text.get())
 
-    def set_log_msg(self, log):
-        msg = settings.LOG_MESSAGES[log]
-        self.log_label['text'] = msg[0]
-        self.log_label['foreground'] = msg[1]
+    def set_log_msg(self, log=None, color='black'):
+        if log:
+            self.log_label['text'] = log
+            self.log_label['foreground'] = color
+        else:
+            self.log_label['text'] = ''
 
     def set_file_path(self, new_path):
         self._file_path.set(new_path)
