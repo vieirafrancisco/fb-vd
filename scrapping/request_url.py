@@ -29,16 +29,21 @@ class Url:
             raise URLException("error: can't uncrypt url")
 
     def _uncrypt_url(self, url):
-        h1 = re.findall('https%253A%252F%252F(.*?)%', url)[0]
-        h1_2 = re.findall('(.*?).fbc', h1)[0]
-        h2 = re.findall('%252Fv%252F(.*?)%', url)[0]
-        h3 = re.findall(f'{h2}%252F(.*?)_n.mp4', url)[0]
-        h4 = re.findall('_nc_cat%253D(.*?)%', url)[0]
-        h5 = re.findall('253Dey(.*?)%', url)[0]
-        h6 = re.findall('oh%253D(.*?)%',url)[0]
-        h7 = re.findall('oe%253D(.*?)%', url)[0]
-    
-        return f'https://{h1}/v/{h2}/{h3}_n.mp4?_nc_cat={h4}&efg=ey{h5}&_nc_ht={h1_2}&oh={h6}&oe={h7}'
+        #regular expressions list that's need to uncrypt the url
+        regex_points = ['https%253A%252F%252F(.*?)%', '%252Fv%252F(.*?)%', '-[0-9]%252F(.*?)_n.mp4',
+        '_nc_cat%253D(.*?)%', '253Dey(.*?)%','https%253A%252F%252F(.*?).fbc' ,'oh%253D(.*?)%', 'oe%253D(.*?)%']
+
+        #url static parts list
+        url_points = ['https://','/v/','/','_n.mp4?_nc_cat=','&efg=ey','&_nc_ht=','&oh=','&oe=']
+
+        #final url
+        url_in_form = ''
+
+        #interate the lists and concat theirs itens
+        for u_point, r_point in zip(url_points, regex_points):
+            url_in_form += str(u_point + re.findall(r_point, url)[0])
+
+        return url_in_form
 
     def get_url(self):
         return self._url
