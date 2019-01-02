@@ -6,3 +6,6 @@ Pipfile.lock
 
 # pychache
 __pycache__/
+
+# extra files
+script.py
