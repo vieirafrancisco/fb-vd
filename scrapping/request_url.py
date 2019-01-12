@@ -47,3 +47,7 @@ class Url:
 
     def get_url(self):
         return self._url
+
+    def get_default_name(self):
+        page_name_and_id = re.findall("https://www.facebook.com/(.*?)/videos/(.*?)/", self.link)[0]
+        return f"{page_name_and_id[0]}-{page_name_and_id[1]}"
