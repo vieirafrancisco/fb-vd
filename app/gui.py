@@ -1,12 +1,14 @@
 import requests
 import urllib.request
 import os
+import re
 import tkinter as tk
 import time
 
 import settings
 
 from .progress_bar import ProgressBar
+from .warning import CreateDirectory
 from scrapping.request_url import Url
 from tkinter.filedialog import askdirectory
 from tkinter import ttk
@@ -74,27 +76,32 @@ class Gui(tk.Frame):
 
         self.cancel_btn = tk.Button(self.control_frame, text="Cancelar", width=settings.BUTTON_WIDTH, command=self.cancel_click)
         self.cancel_btn.grid(row=0, column=0, padx=5, pady=5)
+
         self.open_folder_btn = tk.Button(self.control_frame, text="Abrir Pasta",width=settings.BUTTON_WIDTH, command=self.open_folder_click)
         self.open_folder_btn.grid(row=1, column=0, padx=5, pady=5)
 
     def download_click(self):
-        count = 0
         if(self.url_entry.get()):
             try:
-                url = Url(self.url_entry.get()).get_url()
+                url = Url(self.url_entry.get())
                 
-                if(requests.get(url)):
+                if(requests.get(url.get_url())):
                     try:
-                        raw = requests.get(url, stream=True).raw
+                        raw = requests.get(url.get_url(), stream=True).raw
                         buffer = raw.read(1024)
-                        with open(self.path_text.get()+self.file_name_entry.get()+'.mp4', "wb") as f:
-                            while(buffer):
-                                count+=1
-                                f.write(buffer)
-                                buffer = raw.read(1024)
-
-                        print(count)
-                        self.set_log_msg(settings.LOG_MESSAGES['completed'][0], 'green')
+                        file_name = self.file_name_entry.get() if self.file_name_entry.get() else url.get_default_name()
+                        
+                        if(os.path.isdir(self.path_text.get())):
+                            with open(self.path_text.get()+file_name+'.mp4', "wb") as f:
+                                while(buffer):
+                                    f.write(buffer)
+                                    buffer = raw.read(1024)
+                            self.set_log_msg(settings.LOG_MESSAGES['completed'][0], 'green')
+                        else:
+                            self._create_directory()
+                        
+                    except FileNotFoundError:
+                        self.set_log_msg("Directory not found!", "red")
                     except Exception as e:
                         self.set_log_msg(e, 'red')
             except URLException as e:
@@ -125,4 +132,9 @@ class Gui(tk.Frame):
 
     def set_file_path(self, new_path):
         self._file_path.set(new_path)
-    
+
+    def _create_directory(self):
+        msg = "Não existe um diretório chamado " + self.path_text.get() + ", deseja criar?"
+
+    def _toggle_state(self, state="normal"):
+        pass
