@@ -1,8 +1,18 @@
+import os
+import re
+import platform
+
 ## settings ##
 
 ## path
 # download path
-DOWNLOAD_PATH = 'D:/FbVideos/'
+if platform.system() == "Windows": #windows
+    DOWNLOAD_PATH = 'D:/FbVideos/'
+elif platform.system() == "Linux": #linux
+    DOWNLOAD_PATH = '~/Documents/FbVideos/'
+elif platform.system() == "Darwin": #mac
+    #DOWNLOAD_PATH = '/Users/FbVideos/'
+    pass
 
 ## widgets
 BUTTON_WIDTH = 10
