@@ -10,7 +10,7 @@ import time
 from ..settings import *
 
 from .progress_bar import ProgressBar
-from .warning import CreateDirectory
+from .popup import Popup, CreateDirectory
 from ..scrapping.request_url import Url
 from ..scrapping.url_exception import URLException
 
@@ -90,14 +90,19 @@ class Gui(tk.Frame):
                         buffer = raw.read(1024)
                         file_name = self.file_name_entry.get() if self.file_name_entry.get() else url.get_default_name()
                         
-                        if(os.path.isdir(self.path_text.get())):
-                            with open(self.path_text.get()+file_name+'.mp4', "wb") as f:
+                        down_path = self.path_text.get()
+
+                        if down_path[-1] != "\\" and down_path[-1] != "/":
+                            down_path = down_path+"\\" if sys.platform == "win32" else down_path+"/"
+
+                        if(os.path.isdir(down_path)):
+                            with open(down_path+file_name+'.mp4', "wb") as f:
                                 while(buffer):
                                     f.write(buffer)
                                     buffer = raw.read(1024)
                             self.set_log_msg(LOG_MESSAGES['completed'][0], 'green')
                         else:
-                            self._create_directory()
+                            self._create_directory(down_path)
                         
                     except FileNotFoundError:
                         self.set_log_msg("Directory not found!", "red")
@@ -138,8 +143,9 @@ class Gui(tk.Frame):
     def set_file_path(self, new_path):
         self._file_path.set(new_path)
 
-    def _create_directory(self):
-        msg = "Não existe um diretório chamado " + self.path_text.get() + ", deseja criar?"
+    def _create_directory(self, path):
+        msg = f"Não existe um diretório chamado {path}, deseja criar?"
+        CreateDirectory(msg, path, prev=self)
 
     def _toggle_state(self, state="normal"):
         pass
