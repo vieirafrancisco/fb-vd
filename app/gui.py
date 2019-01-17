@@ -62,25 +62,21 @@ class Gui(tk.Frame):
         self.file_name_entry = tk.Entry(self.download_frame, width=settings.ENTRY_WIDTH)
         self.file_name_entry.grid(row=3, column=0, padx=10)
 
-        # log frame
-        self.log_frame = tk.Frame(self)
-        self.log_frame.grid(row=2, column=0,padx=settings.FRAME_PADDING_X, pady=settings.FRAME_PADDING_Y)
-
-        self.log_label = tk.Label(self.log_frame, font=("Lucida", 10))
-        self.log_label.grid(row=0, column=0, pady=5)
-
-        self.progress_bar = ttk.Progressbar(self.log_frame, orient="horizontal", length=400, mode='determinate')
-        self.progress_bar.grid(row=1, column=0)
-
         # control frame
         self.control_frame = tk.Frame(self)
-        self.control_frame.grid(row=2, column=1, padx=settings.FRAME_PADDING_X, pady=settings.FRAME_PADDING_Y)
+        self.control_frame.grid(row=2, column=0,padx=settings.FRAME_PADDING_X, pady=settings.FRAME_PADDING_Y)
+
+        self.log_label = tk.Label(self.control_frame, font=("Lucida", 10))
+        self.log_label.grid(row=0, column=0, pady=5)
+
+        self.progress_bar = ttk.Progressbar(self.control_frame, orient="horizontal", length=400, mode='determinate')
+        self.progress_bar.grid(row=1, column=0, padx=10)
 
         self.cancel_btn = tk.Button(self.control_frame, text="Cancelar", width=settings.BUTTON_WIDTH, command=self.cancel_click)
-        self.cancel_btn.grid(row=0, column=0, padx=5, pady=5)
+        self.cancel_btn.grid(row=0, column=1, padx=5, pady=5)
 
         self.open_folder_btn = tk.Button(self.control_frame, text="Abrir Pasta",width=settings.BUTTON_WIDTH, command=self.open_folder_click)
-        self.open_folder_btn.grid(row=1, column=0, padx=5, pady=5)
+        self.open_folder_btn.grid(row=1, column=1, padx=5, pady=5)
 
     def download_click(self):
         if(self.url_entry.get()):
