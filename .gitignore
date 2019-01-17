@@ -1,0 +1,8 @@
+# pipfile lock
+Pipfile.lock
+
+# vscode
+.vscode
+
+# pychache
+__pycache__/
