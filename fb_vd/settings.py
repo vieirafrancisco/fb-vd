@@ -1,10 +1,11 @@
 import os
+import sys
 
 ## settings ##
 
 ## path
 # download path
-DOWNLOAD_PATH = os.getcwd()+"/videos/"
+DOWNLOAD_PATH = os.getcwd()+"\\videos\\" if sys.platform == "win32" else os.getcwd()+"/videos/"
 
 ## widgets
 BUTTON_WIDTH = 10
