@@ -131,7 +131,7 @@ class Gui(tk.Frame):
             os.startfile(filepath)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, filepath])
+            subprocess.Popen([opener, filepath])
 
     def set_log_msg(self, log=None, color='black'):
         if log:
