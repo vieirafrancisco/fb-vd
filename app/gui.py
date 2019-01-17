@@ -1,6 +1,8 @@
 import requests
 import urllib.request
 import os
+import sys
+import subprocess
 import re
 import tkinter as tk
 import time
@@ -121,7 +123,13 @@ class Gui(tk.Frame):
         self.master.deiconify() # show the root again
 
     def open_folder_click(self):
-        os.startfile(self.path_text.get())
+        filepath = self.path_text.get()
+
+        if sys.platform == "win32":
+            os.startfile(filepath)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, filepath])
 
     def set_log_msg(self, log=None, color='black'):
         if log:
