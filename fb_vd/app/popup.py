@@ -45,14 +45,5 @@ class CreateDirectory(Popup):
         tk.Button(self.win, text="Cancelar", width=BUTTON_WIDTH, command=self.win.destroy).pack(side="right", padx=5, pady=5)
 
     def confirm_click(self):
-        div = "\\" if sys.platform == "win32" else "/"
-
-        directory_list = self.ndir.split(div)
-        curr_dir = ''
-
-        for directory in directory_list:
-            curr_dir += directory+div
-            if(not os.path.isdir(curr_dir)):
-                subprocess.call(["mkdir", curr_dir]) 
-        
+        os.makedirs(self.ndir)
         self.win.destroy()
